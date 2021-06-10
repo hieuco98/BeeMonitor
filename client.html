@@ -1,0 +1,137 @@
+<html>
+    <head>
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap" rel="stylesheet">
+        <title>Client</title>
+        <style>
+            body { 
+                text-align:center;
+                font-family: 'Open Sans', sans-serif;
+                background-image: linear-gradient(#00BFFF,#81DAF5, #CEECF5);
+            }
+            .btn {
+                outline: none;
+                border: none;
+                background-color: #0000FF;
+                color: #fff;
+                padding: 10px 15px;
+                margin: 0 10px;
+                font-size: 16px;
+                
+                font-weight: 300;
+                cursor: pointer;
+                border-radius: 5px;
+            }           
+            .cancel {
+                background-color: #F78181;
+            }
+
+            .show {
+                background-color: #01DF01;
+                margin-right: 250px;
+            }
+
+            .btn:hover {
+                background-color: #FACC2E;
+                color: #2E2E2E;
+            }
+
+            .cancel:hover{
+                background-color: #DF0101;
+            }
+
+            .show:hover{
+                background-color: #04B404;
+            }
+
+            .content {
+                font-weight: bold;
+                font-size: 20px;
+                margin-bottom: 30px;
+                color: #0404B4;
+            }
+
+            .title {
+                font-size: 36px;
+                font-weight: bolder;
+                color: #0B0B3B;
+            }
+
+            .gr-btn {
+                margin-bottom: 50px;
+            }
+
+        </style>
+    </head>
+    
+    <body>
+        <div id="container">
+            <h1 class="title">Camera Security</h1>
+            <p class="content">It might take more than 5 seconds to capture a photo.</p>
+            <p class="gr-btn">
+              <button class="btn" onclick="LiveStream()"> STREAMING </button>
+              <button class="btn" onclick="capturePhoto()">CAPTURE PHOTO</button>
+              <button class="btn" onclick="closeLivestream();">STOP STREAM </button>
+              <button class="btn" onclick="location.reload();">REFRESH PAGE</button>
+            </p>
+          </div>
+        <img src="">
+       
+        <div>
+            <input class="btn show" type="button" value="Show Photo" onclick="showImage();"/>
+            <input class="btn cancel" type="button" value=" Cancel" onclick="cancelImage();"/>
+            <img id="loadingImage" src="/photo.jpg" style="visibility:hidden"/>
+            </div>
+            
+        <script>
+             var xhr = new XMLHttpRequest();
+            const img = document.querySelector('img');
+            const WS_URL = 'ws:///10.171.18.102:8888';
+            const ws = new WebSocket(WS_URL);
+            
+            // function connectWS()
+            // {
+            //     xhr.open("GET","/connect",true);
+            //     xhr.send();
+            //     alert("Ban da connect thanh cong xin moi xem stream");
+            // }
+            function LiveStream()
+            {
+                xhr.open("GET","/livestream",true);
+                xhr.send();
+                ws.onopen = () => console.log(`Connected to ${WS_URL}`);
+             let urlObject;
+             ws.onmessage = message => {
+                const arrayBuffer = message.data;
+                let start = document.getElementById('btnStart');
+                let stop = document.getElementById('btnStop');
+                let vidSave = document.getElementById('vid2');
+                let mediaRecorder = new MediaRecorder(arrayBuffer);
+                let chunks = [];
+                if(urlObject){
+                    URL.revokeObjectURL(urlObject);
+                }
+                urlObject = URL.createObjectURL(new Blob([arrayBuffer]));
+                img.src = urlObject;
+                
+            }}
+            function closeLivestream()
+            {
+                ws.close();
+            }
+            
+            function capturePhoto()
+            {
+            xhr.open("GET", "/capture", true);
+            xhr.send();
+            }
+
+            function showImage(){
+        document.getElementById('loadingImage').style.visibility="visible";
+    }
+     function cancelImage(){
+        document.getElementById('loadingImage').style.visibility="hidden";
+     }
+        </script>
+    </body>
+</html>
